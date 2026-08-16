@@ -1,22 +1,30 @@
 import { useEffect, useState } from 'react'
+import { sameTag } from '../categories'
 import { loadData, saveData } from '../storage'
-import type { Exercise, ExerciseDraft, ImportMode } from '../types'
+import type {
+  Exercise,
+  ExerciseDraft,
+  ImportMode,
+  StoredData,
+} from '../types'
 
 const byMostRecentlyUpdated = (a: Exercise, b: Exercise): number =>
   b.updatedAt.localeCompare(a.updatedAt)
 
-export const useExercises = () => {
+export const useLibrary = () => {
+  const [initialData] = useState(loadData)
   const [exercises, setExercises] = useState<Exercise[]>(() =>
-    loadData().exercises.sort(byMostRecentlyUpdated),
+    [...initialData.exercises].sort(byMostRecentlyUpdated),
   )
+  const [categories, setCategories] = useState<string[]>(initialData.categories)
 
   useEffect(() => {
     try {
-      saveData(exercises)
+      saveData(exercises, categories)
     } catch (error) {
       console.error('Exercise data could not be saved.', error)
     }
-  }, [exercises])
+  }, [exercises, categories])
 
   const addExercise = (draft: ExerciseDraft): Exercise => {
     const now = new Date().toISOString()
@@ -47,16 +55,28 @@ export const useExercises = () => {
     setExercises((current) => current.filter((exercise) => exercise.id !== id))
   }
 
-  const importExercises = (incoming: Exercise[], mode: ImportMode): void => {
+  const toggleCategory = (tag: string): void => {
+    setCategories((current) => {
+      const existing = current.find((category) => sameTag(category, tag))
+      if (existing) {
+        return current.filter((category) => !sameTag(category, tag))
+      }
+
+      return [...current, tag]
+    })
+  }
+
+  const importData = (incoming: StoredData, mode: ImportMode): void => {
     if (mode === 'replace') {
-      setExercises([...incoming].sort(byMostRecentlyUpdated))
+      setExercises([...incoming.exercises].sort(byMostRecentlyUpdated))
+      setCategories([...incoming.categories])
       return
     }
 
     setExercises((current) => {
       const merged = new Map(current.map((exercise) => [exercise.id, exercise]))
 
-      for (const exercise of incoming) {
+      for (const exercise of incoming.exercises) {
         const existing = merged.get(exercise.id)
         if (!existing || exercise.updatedAt > existing.updatedAt) {
           merged.set(exercise.id, exercise)
@@ -65,13 +85,25 @@ export const useExercises = () => {
 
       return [...merged.values()].sort(byMostRecentlyUpdated)
     })
+
+    setCategories((current) => {
+      const merged = [...current]
+      for (const category of incoming.categories) {
+        if (!merged.some((existing) => sameTag(existing, category))) {
+          merged.push(category)
+        }
+      }
+      return merged
+    })
   }
 
   return {
     exercises,
+    categories,
     addExercise,
     updateExercise,
     removeExercise,
-    importExercises,
+    toggleCategory,
+    importData,
   }
 }

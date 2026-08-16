@@ -2,7 +2,11 @@ import type { Exercise, StoredData } from './types'
 
 const STORAGE_KEY = 'exercise-library-data'
 
-const emptyData = (): StoredData => ({ version: 1, exercises: [] })
+const emptyData = (): StoredData => ({
+  version: 2,
+  exercises: [],
+  categories: [],
+})
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -22,11 +26,33 @@ const isExercise = (value: unknown): value is Exercise => {
   )
 }
 
-export const isStoredData = (value: unknown): value is StoredData =>
-  isRecord(value) &&
-  value.version === 1 &&
-  Array.isArray(value.exercises) &&
-  value.exercises.every(isExercise)
+export const parseStoredData = (value: unknown): StoredData | null => {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.exercises) ||
+    !value.exercises.every(isExercise)
+  ) {
+    return null
+  }
+
+  if (value.version === 1) {
+    return { version: 2, exercises: value.exercises, categories: [] }
+  }
+
+  if (
+    value.version === 2 &&
+    Array.isArray(value.categories) &&
+    value.categories.every((category) => typeof category === 'string')
+  ) {
+    return {
+      version: 2,
+      exercises: value.exercises,
+      categories: value.categories,
+    }
+  }
+
+  return null
+}
 
 export const loadData = (): StoredData => {
   try {
@@ -34,7 +60,8 @@ export const loadData = (): StoredData => {
     if (raw === null) return emptyData()
 
     const parsed: unknown = JSON.parse(raw)
-    if (isStoredData(parsed)) return parsed
+    const data = parseStoredData(parsed)
+    if (data) return data
 
     console.warn('Stored exercise data has an unsupported shape; starting empty.')
   } catch (error) {
@@ -44,8 +71,8 @@ export const loadData = (): StoredData => {
   return emptyData()
 }
 
-export const saveData = (exercises: Exercise[]): void => {
-  const data: StoredData = { version: 1, exercises }
+export const saveData = (exercises: Exercise[], categories: string[]): void => {
+  const data: StoredData = { version: 2, exercises, categories }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 }
 
@@ -58,15 +85,23 @@ export const parseBackup = (json: string): StoredData => {
     throw new Error('That file is not valid JSON.')
   }
 
-  if (!isStoredData(parsed)) {
-    throw new Error('That file is not an Exercise Library version 1 backup.')
+  const data = parseStoredData(parsed)
+  if (!data) {
+    throw new Error('That file is not an Exercise Library backup.')
   }
 
-  return parsed
+  return data
 }
 
-export const createBackupJson = (exercises: Exercise[]): string =>
-  JSON.stringify({ version: 1, exercises } satisfies StoredData, null, 2)
+export const createBackupJson = (
+  exercises: Exercise[],
+  categories: string[],
+): string =>
+  JSON.stringify(
+    { version: 2, exercises, categories } satisfies StoredData,
+    null,
+    2,
+  )
 
 export const createBackupFilename = (): string => {
   const date = new Date().toISOString().slice(0, 10)

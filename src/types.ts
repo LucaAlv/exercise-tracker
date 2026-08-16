@@ -11,8 +11,9 @@ export type Exercise = {
 export type ExerciseDraft = Pick<Exercise, 'name' | 'tags' | 'notes' | 'videoUrl'>
 
 export type StoredData = {
-  version: 1
+  version: 2
   exercises: Exercise[]
+  categories: string[]
 }
 
 export type ImportMode = 'merge' | 'replace'

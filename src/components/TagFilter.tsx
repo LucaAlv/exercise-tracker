@@ -1,3 +1,5 @@
+import { sameTag } from '../categories'
+
 type TagFilterProps = {
   tags: string[]
   selectedTag: string | null
@@ -18,10 +20,18 @@ export function TagFilter({ tags, selectedTag, onSelect }: TagFilterProps) {
       </button>
       {tags.map((tag) => (
         <button
-          className={selectedTag === tag ? 'tag-chip is-selected' : 'tag-chip'}
+          className={
+            selectedTag !== null && sameTag(selectedTag, tag)
+              ? 'tag-chip is-selected'
+              : 'tag-chip'
+          }
           type="button"
           key={tag}
-          onClick={() => onSelect(selectedTag === tag ? null : tag)}
+          onClick={() =>
+            onSelect(
+              selectedTag !== null && sameTag(selectedTag, tag) ? null : tag,
+            )
+          }
         >
           {tag}
         </button>

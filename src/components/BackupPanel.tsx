@@ -8,8 +8,9 @@ import type { Exercise, ImportMode, StoredData } from '../types'
 
 type BackupPanelProps = {
   exercises: Exercise[]
+  categories: string[]
   onBack: () => void
-  onImport: (exercises: Exercise[], mode: ImportMode) => void
+  onImport: (data: StoredData, mode: ImportMode) => void
 }
 
 type PendingBackup = {
@@ -17,7 +18,12 @@ type PendingBackup = {
   data: StoredData
 }
 
-export function BackupPanel({ exercises, onBack, onImport }: BackupPanelProps) {
+export function BackupPanel({
+  exercises,
+  categories,
+  onBack,
+  onImport,
+}: BackupPanelProps) {
   const fileInput = useRef<HTMLInputElement>(null)
   const [pending, setPending] = useState<PendingBackup | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -30,7 +36,9 @@ export function BackupPanel({ exercises, onBack, onImport }: BackupPanelProps) {
 
   const downloadBackup = () => {
     clearStatus()
-    const blob = new Blob([createBackupJson(exercises)], { type: 'application/json' })
+    const blob = new Blob([createBackupJson(exercises, categories)], {
+      type: 'application/json',
+    })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -46,7 +54,7 @@ export function BackupPanel({ exercises, onBack, onImport }: BackupPanelProps) {
     clearStatus()
 
     try {
-      await navigator.clipboard.writeText(createBackupJson(exercises))
+      await navigator.clipboard.writeText(createBackupJson(exercises, categories))
       setMessage('Backup copied. You can paste it into Notes or a message to yourself.')
     } catch {
       setError('Clipboard access was unavailable. Try downloading the backup instead.')
@@ -72,12 +80,12 @@ export function BackupPanel({ exercises, onBack, onImport }: BackupPanelProps) {
 
     if (
       mode === 'replace' &&
-      !window.confirm('Replace every exercise currently on this device with this backup?')
+      !window.confirm('Replace all library data on this device with this backup?')
     ) {
       return
     }
 
-    onImport(pending.data.exercises, mode)
+    onImport(pending.data, mode)
     setMessage(
       `${pending.data.exercises.length} exercise${pending.data.exercises.length === 1 ? '' : 's'} ${
         mode === 'replace' ? 'restored' : 'merged'
@@ -142,7 +150,9 @@ export function BackupPanel({ exercises, onBack, onImport }: BackupPanelProps) {
             <strong>{pending.fileName}</strong>
             <p>
               Contains {pending.data.exercises.length} exercise
-              {pending.data.exercises.length === 1 ? '' : 's'}.
+              {pending.data.exercises.length === 1 ? '' : 's'} and{' '}
+              {pending.data.categories.length} categor
+              {pending.data.categories.length === 1 ? 'y' : 'ies'}.
             </p>
             <button className="button button-primary" type="button" onClick={() => completeImport('merge')}>
               Merge with this device
