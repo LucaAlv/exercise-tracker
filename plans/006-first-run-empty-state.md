@@ -1,6 +1,6 @@
 # 006 — Spend the delight budget on the first-run empty state
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: LOW
 - **Category**: Missed opportunities (delight, rare/first-time tier)

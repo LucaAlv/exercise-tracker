@@ -8,12 +8,12 @@ Baseline at that commit: **the project contains no motion code at all** — zero
 
 | # | Title | Severity | Files | Status |
 | --- | --- | --- | --- | --- |
-| [001](001-press-feedback.md) | Add press feedback to every pressable surface | HIGH | `styles.css` | TODO |
-| [002](002-card-expand-collapse.md) | Animate the exercise card expand/collapse | MEDIUM | `styles.css`, `ExerciseList.tsx` | TODO |
-| [003](003-subpage-enter.md) | Give pushed subpages an entrance | MEDIUM | `styles.css` | TODO |
-| [004](004-thumbnail-load-fade.md) | Fade in exercise thumbnails on load | LOW | `styles.css`, `ExerciseList.tsx` | TODO |
-| [005](005-backup-feedback-enter.md) | Announce backup status messages and the import prompt | LOW | `styles.css` | TODO |
-| [006](006-first-run-empty-state.md) | Spend the delight budget on the first-run empty state | LOW | `styles.css`, `ExerciseList.tsx` | TODO |
+| [001](001-press-feedback.md) | Add press feedback to every pressable surface | HIGH | `styles.css` | DONE |
+| [002](002-card-expand-collapse.md) | Animate the exercise card expand/collapse | MEDIUM | `styles.css`, `ExerciseList.tsx` | DONE |
+| [003](003-subpage-enter.md) | Give pushed subpages an entrance | MEDIUM | `styles.css` | DONE |
+| [004](004-thumbnail-load-fade.md) | Fade in exercise thumbnails on load | LOW | `styles.css`, `ExerciseList.tsx` | DONE |
+| [005](005-backup-feedback-enter.md) | Announce backup status messages and the import prompt | LOW | `styles.css` | DONE |
+| [006](006-first-run-empty-state.md) | Spend the delight budget on the first-run empty state | LOW | `styles.css`, `ExerciseList.tsx` | DONE |
 
 ## Recommended execution order
 
@@ -58,8 +58,8 @@ Recorded so they are not "fixed" later by mistake — each was considered and re
 - **Hold-to-delete replacing `window.confirm`** (`src/App.tsx:63`) — the destructive action is already guarded, and swapping a native dialog for a custom gesture is a product decision, not a motion fix.
 - **Easing the search field's `:focus-within` ring** (`src/styles.css:157`) — focus indicators should land instantly.
 
-## Known issue, not covered by these plans
+## Known issue, not covered by these plans — FIXED
 
-`src/App.tsx:81` and `src/components/LibraryView.tsx:120` call `window.scrollTo({ top: 0, behavior: 'smooth' })`. An explicit `behavior: 'smooth'` overrides the computed `scroll-behavior`, so the `scroll-behavior: auto !important` rule at `src/styles.css:719` does **not** suppress these scrolls for users who have requested reduced motion.
+`src/App.tsx:81` and `src/components/LibraryView.tsx:120` called `window.scrollTo({ top: 0, behavior: 'smooth' })`. An explicit `behavior: 'smooth'` overrides the computed `scroll-behavior`, so the `scroll-behavior: auto !important` rule in the reduced-motion block did **not** suppress these scrolls for users who have requested reduced motion.
 
-Fixing it means branching on `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at both call sites and passing `behavior: 'auto'`. That is a change to existing motion rather than an addition, so it sits outside this set of plans — worth handling separately.
+Fixed separately from the six plans, as anticipated. Both call sites now use `scrollToTop()` from `src/motion.ts`, which resolves `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at call time and passes `behavior: 'auto'` when it matches. The check runs per call rather than once at module load, so a preference changed mid-session is respected.

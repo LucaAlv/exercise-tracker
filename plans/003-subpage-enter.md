@@ -1,6 +1,6 @@
 # 003 — Give pushed subpages an entrance
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: MEDIUM
 - **Category**: Missed opportunities (spatial consistency)

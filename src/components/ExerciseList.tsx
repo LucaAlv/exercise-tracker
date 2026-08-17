@@ -25,13 +25,24 @@ function Thumbnail({ exercise }: { exercise: Exercise }) {
   }
 
   return (
-    <img
-      className="exercise-thumbnail"
-      src={getYoutubeThumbnail(videoId)}
-      alt=""
-      loading="lazy"
-      onError={handleError}
-    />
+    <span className="exercise-thumbnail-frame">
+      <img
+        ref={(image) => {
+          // Cached images can finish loading before React attaches onLoad,
+          // in which case onLoad never fires and the image would stay at
+          // opacity 0 forever. Catch that case here.
+          if (image?.complete) image.dataset.loaded = 'true'
+        }}
+        className="exercise-thumbnail"
+        src={getYoutubeThumbnail(videoId)}
+        alt=""
+        loading="lazy"
+        onLoad={(event) => {
+          event.currentTarget.dataset.loaded = 'true'
+        }}
+        onError={handleError}
+      />
+    </span>
   )
 }
 
@@ -46,7 +57,7 @@ export function ExerciseList({
 
   if (exercises.length === 0) {
     return (
-      <div className="empty-state">
+      <div className={hasFilters ? 'empty-state' : 'empty-state is-first-run'}>
         <span aria-hidden="true">{hasFilters ? '⌕' : '+'}</span>
         <h2>{hasFilters ? 'No matches' : 'Your library is empty'}</h2>
         <p>
@@ -98,53 +109,57 @@ export function ExerciseList({
               </span>
             </button>
 
-            {isExpanded && (
-              <div className="card-details">
-                {exercise.notes && <p className="exercise-notes">{exercise.notes}</p>}
-
-                {exercise.tags.length > 0 && (
-                  <div className="detail-tags">
-                    {exercise.tags.map((tag) => (
-                      <button
-                        className="text-button"
-                        type="button"
-                        key={tag}
-                        onClick={() => onSelectTag(tag)}
-                      >
-                        #{tag}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="card-actions">
-                  {hasLink && (
-                    <a
-                      className="button button-secondary"
-                      href={exercise.videoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open video ↗
-                    </a>
+            <div className="card-details-wrap" inert={!isExpanded || undefined}>
+              <div className="card-details-clip">
+                <div className="card-details">
+                  {exercise.notes && (
+                    <p className="exercise-notes">{exercise.notes}</p>
                   )}
-                  <button
-                    className="button button-secondary"
-                    type="button"
-                    onClick={() => onEdit(exercise)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="button button-danger"
-                    type="button"
-                    onClick={() => onDelete(exercise)}
-                  >
-                    Delete
-                  </button>
+
+                  {exercise.tags.length > 0 && (
+                    <div className="detail-tags">
+                      {exercise.tags.map((tag) => (
+                        <button
+                          className="text-button"
+                          type="button"
+                          key={tag}
+                          onClick={() => onSelectTag(tag)}
+                        >
+                          #{tag}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="card-actions">
+                    {hasLink && (
+                      <a
+                        className="button button-secondary"
+                        href={exercise.videoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open video ↗
+                      </a>
+                    )}
+                    <button
+                      className="button button-secondary"
+                      type="button"
+                      onClick={() => onEdit(exercise)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="button button-danger"
+                      type="button"
+                      onClick={() => onDelete(exercise)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </article>
         )
       })}

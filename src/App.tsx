@@ -12,6 +12,7 @@ import { ExerciseForm } from './components/ExerciseForm'
 import { LibraryView } from './components/LibraryView'
 import { TabBar } from './components/TabBar'
 import { useLibrary } from './hooks/useLibrary'
+import { scrollToTop } from './motion'
 import type { Exercise, ExerciseDraft } from './types'
 
 type View =
@@ -78,7 +79,7 @@ export default function App() {
       setSelectedTag(tag)
       showLibrary()
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    scrollToTop()
   }
 
   if (view.name === 'add' || view.name === 'edit') {

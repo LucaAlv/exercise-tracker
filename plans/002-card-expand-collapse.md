@@ -1,6 +1,6 @@
 # 002 — Animate the exercise card expand/collapse
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: MEDIUM
 - **Category**: Missed opportunities (state change that teleports) / Interruptibility

@@ -1,6 +1,6 @@
 # 004 — Fade in exercise thumbnails on load
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: LOW
 - **Category**: Missed opportunities (preventing a jarring change)

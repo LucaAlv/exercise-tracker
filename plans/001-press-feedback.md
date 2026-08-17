@@ -1,6 +1,6 @@
 # 001 — Add press feedback to every pressable surface
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: HIGH
 - **Category**: Physicality & origin (press feedback) / Missed opportunities
