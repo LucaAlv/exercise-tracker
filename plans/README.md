@@ -58,8 +58,8 @@ Recorded so they are not "fixed" later by mistake — each was considered and re
 - **Hold-to-delete replacing `window.confirm`** (`src/App.tsx:63`) — the destructive action is already guarded, and swapping a native dialog for a custom gesture is a product decision, not a motion fix.
 - **Easing the search field's `:focus-within` ring** (`src/styles.css:157`) — focus indicators should land instantly.
 
-## Known issue, not covered by these plans
+## Known issue, not covered by these plans — FIXED
 
-`src/App.tsx:81` and `src/components/LibraryView.tsx:120` call `window.scrollTo({ top: 0, behavior: 'smooth' })`. An explicit `behavior: 'smooth'` overrides the computed `scroll-behavior`, so the `scroll-behavior: auto !important` rule at `src/styles.css:719` does **not** suppress these scrolls for users who have requested reduced motion.
+`src/App.tsx:81` and `src/components/LibraryView.tsx:120` called `window.scrollTo({ top: 0, behavior: 'smooth' })`. An explicit `behavior: 'smooth'` overrides the computed `scroll-behavior`, so the `scroll-behavior: auto !important` rule in the reduced-motion block did **not** suppress these scrolls for users who have requested reduced motion.
 
-Fixing it means branching on `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at both call sites and passing `behavior: 'auto'`. That is a change to existing motion rather than an addition, so it sits outside this set of plans — worth handling separately.
+Fixed separately from the six plans, as anticipated. Both call sites now use `scrollToTop()` from `src/motion.ts`, which resolves `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at call time and passes `behavior: 'auto'` when it matches. The check runs per call rather than once at module load, so a preference changed mid-session is respected.

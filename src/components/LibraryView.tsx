@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { hasTag } from '../categories'
+import { scrollToTop } from '../motion'
 import type { Exercise } from '../types'
 import { ExerciseList } from './ExerciseList'
 import { TagFilter } from './TagFilter'
@@ -117,7 +118,7 @@ export function LibraryView({
         onDelete={onDelete}
         onSelectTag={(tag) => {
           onSelectTag(tag)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+          scrollToTop()
         }}
       />
 
