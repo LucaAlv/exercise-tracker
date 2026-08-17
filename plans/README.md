@@ -8,12 +8,12 @@ Baseline at that commit: **the project contains no motion code at all** — zero
 
 | # | Title | Severity | Files | Status |
 | --- | --- | --- | --- | --- |
-| [001](001-press-feedback.md) | Add press feedback to every pressable surface | HIGH | `styles.css` | TODO |
-| [002](002-card-expand-collapse.md) | Animate the exercise card expand/collapse | MEDIUM | `styles.css`, `ExerciseList.tsx` | TODO |
-| [003](003-subpage-enter.md) | Give pushed subpages an entrance | MEDIUM | `styles.css` | TODO |
-| [004](004-thumbnail-load-fade.md) | Fade in exercise thumbnails on load | LOW | `styles.css`, `ExerciseList.tsx` | TODO |
-| [005](005-backup-feedback-enter.md) | Announce backup status messages and the import prompt | LOW | `styles.css` | TODO |
-| [006](006-first-run-empty-state.md) | Spend the delight budget on the first-run empty state | LOW | `styles.css`, `ExerciseList.tsx` | TODO |
+| [001](001-press-feedback.md) | Add press feedback to every pressable surface | HIGH | `styles.css` | DONE |
+| [002](002-card-expand-collapse.md) | Animate the exercise card expand/collapse | MEDIUM | `styles.css`, `ExerciseList.tsx` | DONE |
+| [003](003-subpage-enter.md) | Give pushed subpages an entrance | MEDIUM | `styles.css` | DONE |
+| [004](004-thumbnail-load-fade.md) | Fade in exercise thumbnails on load | LOW | `styles.css`, `ExerciseList.tsx` | DONE |
+| [005](005-backup-feedback-enter.md) | Announce backup status messages and the import prompt | LOW | `styles.css` | DONE |
+| [006](006-first-run-empty-state.md) | Spend the delight budget on the first-run empty state | LOW | `styles.css`, `ExerciseList.tsx` | DONE |
 
 ## Recommended execution order
 

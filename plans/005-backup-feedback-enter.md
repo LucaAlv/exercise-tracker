@@ -1,6 +1,6 @@
 # 005 — Announce backup status messages and the import prompt
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: a3e8b75
 - **Severity**: LOW
 - **Category**: Missed opportunities (state indication)

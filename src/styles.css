@@ -19,6 +19,7 @@
   --moss-soft: #dfe9df;
   --danger: #b33a2f;
   --shadow: 0 14px 40px rgba(50, 54, 47, 0.08);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * {
@@ -267,14 +268,27 @@ h2 {
   text-align: left;
 }
 
-.exercise-thumbnail {
+.exercise-thumbnail-frame {
+  display: block;
   width: 112px;
   min-width: 112px;
   height: 82px;
+  overflow: hidden;
   align-self: flex-start;
   border-radius: 13px;
   background: var(--moss-soft);
+}
+
+.exercise-thumbnail {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
   object-fit: cover;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.exercise-thumbnail[data-loaded] {
+  opacity: 1;
 }
 
 .card-copy {
@@ -321,6 +335,32 @@ h2 {
 .card-details {
   padding: 0 1rem 1rem;
   border-top: 1px solid var(--line);
+}
+
+.card-details-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 220ms var(--ease-out),
+    opacity 160ms var(--ease-out);
+}
+
+.exercise-card.is-expanded .card-details-wrap {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 220ms var(--ease-out),
+    opacity 220ms var(--ease-out);
+}
+
+/* The clip layer must carry overflow/min-height, NOT .card-details itself:
+   .card-details has padding and a border-top, and with the global
+   box-sizing: border-box (src/styles.css:24) those would keep the collapsed
+   row ~17px tall instead of 0. */
+.card-details-clip {
+  overflow: hidden;
+  min-height: 0;
 }
 
 .exercise-notes {
@@ -546,10 +586,62 @@ h2 {
   line-height: 1.55;
 }
 
+.empty-state.is-first-run > span,
+.empty-state.is-first-run h2,
+.empty-state.is-first-run p {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+
+.empty-state.is-first-run h2 {
+  transition-delay: 60ms;
+}
+
+.empty-state.is-first-run p {
+  transition-delay: 120ms;
+}
+
+@starting-style {
+  .empty-state.is-first-run > span {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  .empty-state.is-first-run h2,
+  .empty-state.is-first-run p {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
 .editor-page,
 .backup-page,
 .category-settings-page {
   width: min(100%, 640px);
+}
+
+.editor-page,
+.backup-page,
+.category-settings-page,
+.category-page {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+}
+
+@starting-style {
+  .editor-page,
+  .backup-page,
+  .category-settings-page,
+  .category-page {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 .exercise-form,
@@ -649,6 +741,25 @@ h2 {
   margin: 0;
 }
 
+.import-choice,
+.status-message,
+.form-error {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+}
+
+@starting-style {
+  .import-choice,
+  .status-message,
+  .form-error {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -657,6 +768,45 @@ h2 {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.search-field button,
+.icon-button,
+.tag-chip,
+.card-summary,
+.button,
+.fab,
+.tab-bar button,
+.category-card,
+.category-toggle {
+  transition: transform 160ms var(--ease-out);
+}
+
+.search-field button:active,
+.icon-button:active,
+.tag-chip:active,
+.button:active,
+.fab:active,
+.tab-bar button:active {
+  transform: scale(0.97);
+}
+
+/* Large surfaces: a 3% scale on a full-width card reads as the card shrinking
+   rather than as pressure. 2% is the correct amount at this size. */
+.card-summary:active,
+.category-card:active,
+.category-toggle:active {
+  transform: scale(0.98);
+}
+
+/* Text-only buttons have no box to compress; scaling bare text looks like a
+   font glitch. Dim instead. */
+.text-button {
+  transition: opacity 160ms var(--ease-out);
+}
+
+.text-button:active {
+  opacity: 0.6;
 }
 
 @media (min-width: 640px) {
@@ -675,7 +825,7 @@ h2 {
 }
 
 @media (max-width: 430px) {
-  .exercise-thumbnail {
+  .exercise-thumbnail-frame {
     width: 96px;
     min-width: 96px;
     height: 76px;
@@ -717,5 +867,48 @@ h2 {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+  }
+
+  /* Press feedback is the app's only tap acknowledgment, so it must survive.
+     Swap the transform for an opacity dip: feedback without movement. */
+  .search-field button:active,
+  .icon-button:active,
+  .tag-chip:active,
+  .card-summary:active,
+  .button:active,
+  .fab:active,
+  .tab-bar button:active,
+  .category-card:active,
+  .category-toggle:active {
+    transform: none;
+    opacity: 0.7;
+  }
+
+  .card-details-wrap,
+  .exercise-card.is-expanded .card-details-wrap {
+    transition: opacity 160ms var(--ease-out);
+  }
+
+  .editor-page,
+  .backup-page,
+  .category-settings-page,
+  .category-page {
+    transition: opacity 200ms var(--ease-out);
+    transform: none;
+  }
+
+  .import-choice,
+  .status-message,
+  .form-error {
+    transition: opacity 200ms var(--ease-out);
+    transform: none;
+  }
+
+  .empty-state.is-first-run > span,
+  .empty-state.is-first-run h2,
+  .empty-state.is-first-run p {
+    transition: opacity 300ms var(--ease-out);
+    transform: none;
+    transition-delay: 0s;
   }
 }
